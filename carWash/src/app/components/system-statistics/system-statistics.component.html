@@ -1,0 +1,15 @@
+<div class="statistics-container">
+  <h2>System Statistics</h2>
+
+  <p *ngIf="isLoading">Loading statistics...</p>
+  <p *ngIf="errorMessage && !isLoading" class="error">{{ errorMessage }}</p>
+
+  <div *ngIf="statistics && !isLoading">
+    <div class="stat-card"><strong>Customers:</strong> {{ statistics.customersNumber }}</div>
+    <div class="stat-card"><strong>Partners:</strong> {{ statistics.partnersNumber }}</div>
+    <div class="stat-card"><strong>Cars:</strong> {{ statistics.carsNumber }}</div>
+    <div class="stat-card"><strong>Total Reservations:</strong> {{ statistics.totalReservations }}</div>
+    <div class="stat-card"><strong>Problematic Reservations:</strong> {{ statistics.problematicReservations }}</div>
+    <div class="stat-card"><strong>Closed Reservations:</strong> {{ statistics.closedReservations }}</div>
+  </div>
+</div>

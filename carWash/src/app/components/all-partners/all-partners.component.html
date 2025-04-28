@@ -1,0 +1,133 @@
+<div class="partners-container">
+  <h2>All Partners</h2>
+
+  <!-- Loading and error messages -->
+  <p *ngIf="isLoading">Loading partners...</p>
+  <p *ngIf="errorMessage && !isLoading" class="error">{{ errorMessage }}</p>
+
+  <!-- Partners List -->
+  <div *ngIf="!isLoading && partners.length > 0; else noData">
+    <div class="partner-card" *ngFor="let partner of partners">
+      <img [src]="partner.photoUrl" alt="Partner Photo" />
+
+      <div>
+        <h3>{{ partner.displayName || partner.name }}</h3>
+        <p><strong>Email:</strong> {{ partner.email }}</p>
+        <p><strong>Phone:</strong> {{ partner.phoneNumber }}</p>
+        <p><strong>Admin:</strong> {{ partner.isAdmin ? 'Yes' : 'No' }}</p>
+        <p><strong>Approved:</strong> {{ partner.isApproved ? 'Yes' : 'No' }}</p>
+        <p><strong>Suspended:</strong> {{ partner.isSuspended ? 'Yes' : 'No' }}</p>
+        <p><strong>⭐ Stars:</strong> {{ partner.stars }}</p>
+        <p><strong>Reviews:</strong> {{ partner.reviews }}</p>
+
+        <button (click)="viewPartnerDetails(partner.id)">View Details</button>
+
+        <!-- Loading extra details -->
+        <p *ngIf="isDetailsLoading && selectedPartnerId === partner.id">Loading details...</p>
+
+        <!-- Extra Partner Details -->
+        <div *ngIf="selectedPartnerDetails && selectedPartnerId === partner.id" class="extra-details">
+          <h4>Extra Details</h4>
+          <p><strong>Nickname:</strong> {{ selectedPartnerDetails.nickName }}</p>
+          <p><strong>Preferred Phone:</strong> {{ selectedPartnerDetails.preferredPhoneNumber }}</p>
+          <p><strong>Locale:</strong> {{ selectedPartnerDetails.locale?.displayName }}</p>
+          <p><strong>Home Latitude:</strong> {{ selectedPartnerDetails.homeLatitude }}</p>
+          <p><strong>Home Longitude:</strong> {{ selectedPartnerDetails.homeLongitude }}</p>
+          <p><strong>Work Latitude:</strong> {{ selectedPartnerDetails.workLatitude }}</p>
+          <p><strong>Work Longitude:</strong> {{ selectedPartnerDetails.workLongitude }}</p>
+
+          <!-- Partner Packages -->
+          <div *ngIf="selectedPartnerPackages.length > 0">
+            <h4>Partner Packages</h4>
+
+            <div *ngFor="let package of selectedPartnerPackages" class="package">
+              <h3>{{ package.packageName }}</h3>
+              <p><strong>VAT:</strong> {{ package.vat }}</p>
+              <p><strong>Country:</strong> {{ package.country }}</p>
+              <p><strong>City:</strong> {{ package.city }}</p>
+              <p><strong>Currency:</strong> {{ package.currency }}</p>
+              <p><strong>Active:</strong> {{ package.active ? 'Yes' : 'No' }}</p>
+
+              <h4>Extra Details:</h4>
+              <ul>
+                <li>Private Cars Price: {{ package.extraDetails?.PrivateCars }}</li>
+                <li>SUVs Price: {{ package.extraDetails?.SUVs }}</li>
+                <li>Vans or Similar Price: {{ package.extraDetails?.VansOrSimilar }}</li>
+                <li>Caravans Price: {{ package.extraDetails?.Caravans }}</li>
+              </ul>
+
+              <h4>Service Products:</h4>
+              <div *ngFor="let product of package.serviceProducts">
+                <p><strong>Product Name:</strong> {{ product.name }}</p>
+                <p><strong>Description:</strong> {{ product.description }}</p>
+              </div>
+
+              <h4>Price Info:</h4>
+              <p><strong>System Profit:</strong> {{ package.priceDTO?.systemProfitPercentage }}%</p>
+              <p><strong>VAT:</strong> {{ package.priceDTO?.vat }}%</p>
+            </div>
+          </div>
+
+          <!-- Package load error -->
+          <p *ngIf="partnerPackagesError" class="error">{{ partnerPackagesError }}</p>
+
+          <!-- Add New Package Form -->
+          <h4>Add New Partner Package</h4>
+          <form (ngSubmit)="submitNewPackage()" #packageForm="ngForm">
+            <div class="form-field">
+              <label>Package Name:</label>
+              <input type="text" name="packageName" [(ngModel)]="newPackage.packageName" required />
+            </div>
+
+            <div class="form-field">
+              <label>VAT:</label>
+              <input type="number" name="vat" [(ngModel)]="newPackage.vat" required />
+            </div>
+
+            <div class="form-field">
+              <label>Country:</label>
+              <input type="text" name="country" [(ngModel)]="newPackage.country" required />
+            </div>
+
+            <div class="form-field">
+              <label>City:</label>
+              <input type="text" name="city" [(ngModel)]="newPackage.city" required />
+            </div>
+
+            <div class="form-field">
+              <label>Currency:</label>
+              <input type="text" name="currency" [(ngModel)]="newPackage.currency" required />
+            </div>
+
+            <div class="form-field">
+              <label>Region:</label>
+              <input type="text" name="region" [(ngModel)]="newPackage.region" required />
+            </div>
+
+            <div class="form-field">
+              <label>Extra Details:</label>
+              <textarea name="extraDetails" [(ngModel)]="newPackage.extraDetails" placeholder="Enter extra details"></textarea>
+            </div>
+
+            <div class="form-field">
+              <label>Service Products:</label>
+              <textarea name="serviceProducts" [(ngModel)]="newPackage.serviceProducts" placeholder="Enter service products"></textarea>
+            </div>
+
+            <button type="submit">Save Package</button>
+          </form>
+
+          <button (click)="closeDetails()">Close Details</button>
+        </div>
+
+        <!-- Details load error -->
+        <p *ngIf="detailsError && selectedPartnerId === partner.id" class="error">{{ detailsError }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- No data template -->
+  <ng-template #noData>
+    <p *ngIf="!isLoading && !errorMessage">No partners found.</p>
+  </ng-template>
+</div>

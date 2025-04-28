@@ -1,0 +1,49 @@
+<div class="reservations-container">
+  <h2>All Reservations</h2>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading">
+    <p>Loading reservations, please wait...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Reservations Table -->
+  <table *ngIf="!loading && reservations.length > 0" class="reservations-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Arrival From</th>
+        <th>Arrival To</th>
+        <th>Description</th>
+        <th>Customer Name</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let res of reservations">
+        <td>{{ res.id }}</td>
+        <td>{{ res.arrivalTimeFrom | date: 'short' }}</td>
+        <td>{{ res.arrivalTimeTo | date: 'short' }}</td>
+        <td>{{ res.description || 'N/A' }}</td>
+        <td>{{ res.customer?.name || 'Unknown' }}</td>
+        <td>
+          <!-- <span class="status-label" [ngStyle]="{ color: res.lastReservationEvents?.statusColor || 'inherit' }">
+            {{ res.lastReservationEvents?.reservationStatus || 'Unknown' }}
+          </span> -->
+          <span class="status-label" [ngStyle]="{color: getStatusColor(res.lastReservationEvents?.reservationStatus)}">
+            {{ res.lastReservationEvents?.reservationStatus || 'Unknown' }}
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Empty Message -->
+  <div *ngIf="!loading && reservations.length === 0" class="empty">
+    <p>No reservations found.</p>
+  </div>
+</div>

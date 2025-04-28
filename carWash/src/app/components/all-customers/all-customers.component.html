@@ -1,0 +1,31 @@
+<div class="customers-container">
+  <h2>All Customers</h2>
+
+  <p *ngIf="isLoading">Loading customers...</p>
+  <p *ngIf="errorMessage && !isLoading" class="error">{{ errorMessage }}</p>
+  <p *ngIf="successMessage && !isLoading" class="success">{{ successMessage }}</p>
+
+  <div *ngIf="customers.length > 0 && !isLoading; else noData">
+    <div class="customer-card" *ngFor="let customer of customers">
+      <img [src]="customer.photoUrl || 'https://via.placeholder.com/80'" alt="Photo" />
+      <div>
+        <h3>{{ customer.displayName || customer.name }}</h3>
+        <p><strong>Email:</strong> {{ customer.email }}</p>
+        <p><strong>Phone:</strong> {{ customer.phoneNumber }}</p>
+        <p><strong>Admin:</strong> {{ customer.isAdmin }}</p>
+        <p><strong>Approved:</strong> {{ customer.isApproved }}</p>
+        <p><strong>Suspended:</strong> {{ customer.isSuspended }}</p>
+        <p><strong>Phone Verified:</strong> {{ customer.isPhoneVerified }}</p>
+        <p><strong>Number:</strong> {{ customer.number }}</p>
+
+        <button class="suspend-btn" (click)="toggleSuspend(customer)">
+          {{ customer.isSuspended ? 'Unsuspend' : 'Suspend' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noData>
+    <p *ngIf="!isLoading && !errorMessage">No customers found.</p>
+  </ng-template>
+</div>
