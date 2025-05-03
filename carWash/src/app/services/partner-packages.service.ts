@@ -5,49 +5,80 @@ import { catchError } from 'rxjs/operators';
 
 // PartnerPackage Interface
 export interface PartnerPackage {
-  active: boolean;
-  city: string;
-  country: string;
-  Region:string;
-  countryCode: string;
-  currency: string;
-  extraDetails: {
-    Caravans: string;
-    PrivateCars: string;
-    SUVs: string;
-    VansOrSimilar: string;
-  };
-  duration: string;
   id: string;
-  numberOfServices: string;
-  packageDescription: string;
+  vat: string;
+  country: string;
+  countryCode: string;
+  city: string;
   packageName: string;
-  priceDTO: {
-    netPrice: number | null;
-    price: number | null;
-    salePercentage: number | null;
-    salePrice: number | null;
-    systemProfitPercentage: number;
-    totalPrice: number | null;
-    vat: number;
+  packageDescription: string;
+  currency: string;
+  duration: string;
+  numberOfServices: string;
+  active: boolean;
+
+  extraDetails: {
+    additionalProp1: string;
+    additionalProp2: string;
+    additionalProp3: string;
   };
-  questions: any[]; // Update this if you expect a specific structure for the questions array
-  regionDTOs: {
-    city: string;
-    country: string;
-    countryCode: string;
-    id: string;
+
+  priceDTO: {
+    netPrice: number;
+    totalPrice: number;
+    price: number;
+    salePrice: number;
+    vat: number;
+    systemProfitPercentage: number;
+    salePercentage: number;
+  };
+
+  questions: {
+    id?: string;
+    text: string;
+    type: number;
+    expectedAnswer: string;
+    mandatory: boolean;
   }[];
+
   serviceProducts: {
     id: string;
     productCode: string;
     internalID: string;
     name: string;
     description: string;
+    price: number;
+    currency: string;
+    externalID: string;
+    status: string;
+    salePercentage: number;
+    systemProfitPercentage: number;
+    generalCosts: number;
   }[];
-  stockProducts: any[]; // Update this if you expect a specific structure for stockProducts
-  vat: string;
+
+  stockProducts: {
+    id: string;
+    productCode: string;
+    internalID: string;
+    name: string;
+    description: string;
+    price: number;
+    currency: string;
+    externalID: string;
+    status: string;
+    salePercentage: number;
+    systemProfitPercentage: number;
+    generalCosts: number;
+  }[];
+
+  regionDTOs: {
+    id: string;
+    countryCode: string;
+    country: string;
+    city: string;
+  }[];
 }
+
 
 @Injectable({
   providedIn: 'root'

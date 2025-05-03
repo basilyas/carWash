@@ -5,18 +5,21 @@ import { Observable } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class AddPartnerPackageService {
-  private baseUrl = '/api/administrator/addPartnerPackage';
+export class RemovePartnerPackageService {
+  private apiUrl = '/api/administrator/removePartnerPackage';
 
   constructor(private http: HttpClient) {}
 
-  addPartnerPackage(partnerId: string, packageData: any): Observable<any> {
+  removePackage(partnerId: string, packageId: string): Observable<{}> {
     let token = localStorage.getItem('authToken') || '';
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
-    const params = new HttpParams().set('partnerId', partnerId);
-    return this.http.post(this.baseUrl, packageData, { headers, params });
+    const params = new HttpParams()
+      .set('partnerId', partnerId)
+      .set('packageId', packageId);
+
+    return this.http.post<{}>(this.apiUrl, null, {headers, params });
   }
 }

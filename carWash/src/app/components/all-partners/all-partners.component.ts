@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 
 import { AllPartnersService, Partner } from '../../services/all-partners.service';
 import { PartnerExtraDetailsService } from '../../services/partner-extar-details.service';
 import { PartnerPackagesService, PartnerPackage } from '../../services/partner-packages.service';
 import { AddPartnerPackageService } from '../../services/add-partner-package.service';
+import { RemovePartnerPackageService } from '../../services/remove-partner-package.service';
 
 @Component({
   selector: 'app-all-partners',
@@ -27,85 +29,85 @@ export class AllPartnersComponent implements OnInit {
   selectedPartnerPackages: PartnerPackage[] = [];
   partnerPackagesError = '';
 
-  // Updated new package model to include region, extraDetails, and serviceProducts
-  newPackage = {
-    packageName: '',
-    vat: 0,
-    country: '',
-    countryCode: '',
-    city: '',
-    currency: '',
-    region:'',
-    regionDTOs: [
-      {
-        countryCode: '', // Add countryCode here
-        country: '',      // Add country here
-        city: ''          // Add city here
-      }
-    ],
+  newPackage: any = {
+    vat: '',
+    country: 'USA',
+    countryCode: 'US',
+    city: 'New York',
+    packageName: 'Starter Package',
+    packageDescription: 'Basic entry package',
+    currency: 'USD',
+    duration: '30',
+    numberOfServices: '5',
+    active: true,
     extraDetails: {
-      additionalProp1: '',
-      additionalProp2: '',
-      additionalProp3: ''
+      additionalProp1: 'info1',
+      additionalProp2: 'info2',
+      additionalProp3: 'info3'
     },
+    priceDTO: {
+      netPrice: 100,
+      totalPrice: 120,
+      price: 100,
+      salePrice: 90,
+      vat: 20,
+      systemProfitPercentage: 10,
+      salePercentage: 10,
+    },
+    questions: [
+      { text: 'Do you agree to the terms?', expectedAnswer: 'Yes', type: 1, mandatory: true }
+    ],
+    regions: [ "Region1", "Region2" ] ,
     serviceProducts: [
       {
-        id: '',
-        productCode: '',
-        internalID: '',
-        name: '',
-        description: '',
-        price: 0,
-        currency: '',
-        externalID: '',
+        name: 'Cleaning Service',
+        description: 'Basic cleaning package',
+        price: 50,
+        productCode: 'CLEAN01',
+        internalID: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',  // <-- valid UUID
+        currency: 'USD',
+        externalID: 'a987fbc9-4bed-3078-cf07-9141ba07c9f3',  // <-- valid UUID
         status: 'Publish',
-        salePercentage: 0,
-        systemProfitPercentage: 0,
-        generalCosts: 0
+        salePercentage: 10,
+        systemProfitPercentage: 5,
+        generalCosts: 5
       }
     ],
     stockProducts: [
       {
-        id: '',
-        productCode: '',
-        internalID: '',
-        name: '',
-        description: '',
-        price: 0,
-        currency: '',
-        externalID: '',
+        name: 'Cleaning Kit',
+        description: 'Tools and supplies',
+        price: 20,
+        productCode: 'KIT01',
+        internalID: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',  // <-- valid UUID
+        currency: 'USD',
+        externalID: '9c858901-8a57-4791-81fe-4c455b099bc9',  // <-- valid UUID
         status: 'Publish',
-        salePercentage: 0,
-        systemProfitPercentage: 0,
-        generalCosts: 0
+        salePercentage: 5,
+        systemProfitPercentage: 2,
+        generalCosts: 3
       }
     ],
-    questions: [
+    regionDTOs: [
       {
-        id: '',
-        text: '',
-        type: 0,
-        expectedAnswer: '',
-        mandatory: true
+        id:'',
+        country: 'USA',
+        countryCode: 'US',
+        city: 'New York',
       }
-    ],
-    priceDTO: {
-      netPrice: 0,
-      totalPrice: 0,
-      price: 0,
-      salePrice: 0,
-      vat: 0,
-      systemProfitPercentage: 0,
-      salePercentage: 0
-    },
-    active: true
+    ]
   };
+  submitMessage = '';
+
+  editQuestionId: string | null = null;
+  editedQuestion: any = {};
 
   constructor(
     private allPartnersService: AllPartnersService,
     private partnerExtraDetailsService: PartnerExtraDetailsService,
     private partnerPackagesService: PartnerPackagesService,
-    private addPartnerPackageService: AddPartnerPackageService
+    private addPartnerPackageService: AddPartnerPackageService ,
+    private removePartnerPackageService: RemovePartnerPackageService,
   ) {}
 
   ngOnInit(): void {
@@ -115,7 +117,6 @@ export class AllPartnersComponent implements OnInit {
   fetchPartners(): void {
     this.isLoading = true;
     this.errorMessage = '';
-
     this.allPartnersService.getAllPartners().subscribe({
       next: (partners) => {
         this.partners = partners;
@@ -137,7 +138,6 @@ export class AllPartnersComponent implements OnInit {
     this.partnerPackagesError = '';
     this.selectedPartnerId = partnerId;
 
-    // Fetch extra details
     this.partnerExtraDetailsService.getPartnerExtraDetails(partnerId).subscribe({
       next: (details) => {
         this.selectedPartnerDetails = details;
@@ -150,7 +150,6 @@ export class AllPartnersComponent implements OnInit {
       }
     });
 
-    // Fetch partner packages
     this.partnerPackagesService.getPartnerPackages(partnerId).subscribe({
       next: (packages) => {
         if (packages && packages.length > 0) {
@@ -166,114 +165,44 @@ export class AllPartnersComponent implements OnInit {
     });
   }
 
-  submitNewPackage(): void {
-    if (!this.selectedPartnerId) {
-      console.error('No partner selected.');
-      return;
-    }
-
-    const packageData = {
-      id: '', // Optional: consider generating an ID or ensuring this field matches the backend expectation
-      vat: this.newPackage.vat.toString(),
-      country: this.newPackage.country,
-      countryCode: this.newPackage.countryCode,
-      city: this.newPackage.city,
-      region:this.newPackage.region,
-      packageName: this.newPackage.packageName,
-      currency: this.newPackage.currency,
-      extraDetails: this.newPackage.extraDetails,
-      serviceProducts: this.newPackage.serviceProducts,
-      stockProducts: this.newPackage.stockProducts,
-      questions: this.newPackage.questions,
-      regionDTOs: this.newPackage.regionDTOs,
-      priceDTO: this.newPackage.priceDTO,
-      active: true
-    };
-
-    this.addPartnerPackageService.addPartnerPackage(this.selectedPartnerId, packageData).subscribe({
-      next: (response) => {
-        console.log('Package added successfully:', response);
-        this.viewPartnerDetails(this.selectedPartnerId!);
-        this.resetNewPackageForm();
-      },
-      error: (error) => {
-        console.error('Error adding partner package:', error);
-      }
-    });
-  }
-
-  resetNewPackageForm(): void {
-    this.newPackage = {
-      packageName: '',
-      vat: 0,
-      country: '',
-      countryCode: '',
-      city: '',
-      region:'',
-      currency: '',
-      regionDTOs: [],
-      extraDetails: {
-        additionalProp1: '',
-        additionalProp2: '',
-        additionalProp3: ''
-      },
-      serviceProducts: [
-        {
-          id: '',
-          productCode: '',
-          internalID: '',
-          name: '',
-          description: '',
-          price: 0,
-          currency: '',
-          externalID: '',
-          status: 'Publish',
-          salePercentage: 0,
-          systemProfitPercentage: 0,
-          generalCosts: 0
-        }
-      ],
-      stockProducts: [
-        {
-          id: '',
-          productCode: '',
-          internalID: '',
-          name: '',
-          description: '',
-          price: 0,
-          currency: '',
-          externalID: '',
-          status: 'Publish',
-          salePercentage: 0,
-          systemProfitPercentage: 0,
-          generalCosts: 0
-        }
-      ],
-      questions: [
-        {
-          id: '',
-          text: '',
-          type: 0,
-          expectedAnswer: '',
-          mandatory: true
-        }
-      ],
-      priceDTO: {
-        netPrice: 0,
-        totalPrice: 0,
-        price: 0,
-        salePrice: 0,
-        vat: 0,
-        systemProfitPercentage: 0,
-        salePercentage: 0
-      },
-      active: true
-    };
-  }
-
   closeDetails(): void {
     this.selectedPartnerDetails = null;
     this.selectedPartnerPackages = [];
     this.selectedPartnerId = null;
   }
+
+  submitNewPackage(): void {
+    if (!this.selectedPartnerId) {
+      this.submitMessage = 'Partner ID is missing.';
+      return;
+    }
+
+    this.addPartnerPackageService.addPartnerPackage(this.selectedPartnerId, this.newPackage).subscribe({
+      next: (response) => {
+        this.submitMessage = 'Package added successfully!';
+        this.viewPartnerDetails(this.selectedPartnerId!); // Refresh packages
+      },
+      error: (error) => {
+        console.error('Failed to add partner package:', error);
+        this.submitMessage = 'Failed to add package. Please try again.';
+      }
+    });
+  }
+
+  removePackage(partnerId: string, packageId: string): void {
+    if (!confirm('Are you sure you want to remove this package?')) return;
+
+    this.removePartnerPackageService.removePackage(partnerId, packageId).subscribe({
+      next: () => {
+        // Refresh the list of packages after removal
+        this.viewPartnerDetails(partnerId);
+      },
+      error: (error) => {
+        console.error('Error removing package:', error);
+        alert('Failed to remove package. Please try again.');
+      }
+    });
+  }
+
+
 }

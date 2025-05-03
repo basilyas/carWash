@@ -6,7 +6,7 @@
   <p *ngIf="errorMessage && !isLoading" class="error">{{ errorMessage }}</p>
 
   <!-- Partners List -->
-  <div *ngIf="!isLoading && partners.length > 0; else noData">
+  <ng-container *ngIf="!isLoading && partners.length > 0; else noData">
     <div class="partner-card" *ngFor="let partner of partners">
       <img [src]="partner.photoUrl" alt="Partner Photo" />
 
@@ -22,10 +22,9 @@
 
         <button (click)="viewPartnerDetails(partner.id)">View Details</button>
 
-        <!-- Loading extra details -->
         <p *ngIf="isDetailsLoading && selectedPartnerId === partner.id">Loading details...</p>
 
-        <!-- Extra Partner Details -->
+        <!-- Partner Extra Details -->
         <div *ngIf="selectedPartnerDetails && selectedPartnerId === partner.id" class="extra-details">
           <h4>Extra Details</h4>
           <p><strong>Nickname:</strong> {{ selectedPartnerDetails.nickName }}</p>
@@ -36,98 +35,135 @@
           <p><strong>Work Latitude:</strong> {{ selectedPartnerDetails.workLatitude }}</p>
           <p><strong>Work Longitude:</strong> {{ selectedPartnerDetails.workLongitude }}</p>
 
-          <!-- Partner Packages -->
-          <div *ngIf="selectedPartnerPackages.length > 0">
+          <!-- Packages List -->
+          <div *ngIf="selectedPartnerPackages.length > 0; else noPackages">
             <h4>Partner Packages</h4>
+            <div *ngFor="let pack of selectedPartnerPackages" class="package-details">
+              <h5>{{ pack.packageName }}</h5>
+              <p><strong>ID:</strong> {{ pack.id }}</p>
+              <p><strong>VAT:</strong> {{ pack.vat }}</p>
+              <p><strong>Country:</strong> {{ pack.country }} ({{ pack.countryCode }})</p>
+              <p><strong>City:</strong> {{ pack.city }}</p>
+              <p><strong>Description:</strong> {{ pack.packageDescription }}</p>
+              <p><strong>Currency:</strong> {{ pack.currency }}</p>
+              <p><strong>Duration:</strong> {{ pack.duration }}</p>
+              <p><strong>Active:</strong> {{ pack.active ? 'Yes' : 'No' }}</p>
 
-            <div *ngFor="let package of selectedPartnerPackages" class="package">
-              <h3>{{ package.packageName }}</h3>
-              <p><strong>VAT:</strong> {{ package.vat }}</p>
-              <p><strong>Country:</strong> {{ package.country }}</p>
-              <p><strong>City:</strong> {{ package.city }}</p>
-              <p><strong>Currency:</strong> {{ package.currency }}</p>
-              <p><strong>Active:</strong> {{ package.active ? 'Yes' : 'No' }}</p>
-
-              <h4>Extra Details:</h4>
-              <ul>
-                <li>Private Cars Price: {{ package.extraDetails?.PrivateCars }}</li>
-                <li>SUVs Price: {{ package.extraDetails?.SUVs }}</li>
-                <li>Vans or Similar Price: {{ package.extraDetails?.VansOrSimilar }}</li>
-                <li>Caravans Price: {{ package.extraDetails?.Caravans }}</li>
-              </ul>
-
-              <h4>Service Products:</h4>
-              <div *ngFor="let product of package.serviceProducts">
-                <p><strong>Product Name:</strong> {{ product.name }}</p>
-                <p><strong>Description:</strong> {{ product.description }}</p>
+              <div>
+                <strong>Extra Details:</strong>
+                <p>Additional 1: {{ pack.extraDetails.additionalProp1 }}</p>
+                <p>Additional 2: {{ pack.extraDetails.additionalProp2 }}</p>
+                <p>Additional 3: {{ pack.extraDetails.additionalProp3 }}</p>
               </div>
 
-              <h4>Price Info:</h4>
-              <p><strong>System Profit:</strong> {{ package.priceDTO?.systemProfitPercentage }}%</p>
-              <p><strong>VAT:</strong> {{ package.priceDTO?.vat }}%</p>
+              <div>
+                <strong>Price Info:</strong>
+                <p>Net Price: {{ pack.priceDTO.netPrice }}</p>
+                <p>Total Price: {{ pack.priceDTO.totalPrice }}</p>
+                <p>Price: {{ pack.priceDTO.price }}</p>
+                <p>Sale Price: {{ pack.priceDTO.salePrice }}</p>
+                <p>VAT: {{ pack.priceDTO.vat }}</p>
+                <p>System Profit %: {{ pack.priceDTO.systemProfitPercentage }}</p>
+                <p>Sale %: {{ pack.priceDTO.salePercentage }}</p>
+              </div>
+
+              <div *ngIf="pack.questions.length > 0">
+                <strong>Questions:</strong>
+                <div *ngFor="let q of pack.questions">
+                  <p>Text: {{ q.text }}</p>
+                  <p>Expected Answer: {{ q.expectedAnswer }}</p>
+                  <p>Type: {{ q.type }}</p>
+                  <p>Mandatory: {{ q.mandatory ? 'Yes' : 'No' }}</p>
+                  <hr />
+                </div>
+              </div>
+
+
+
+
+              <div *ngIf="pack.serviceProducts.length > 0">
+                <strong>Service Products:</strong>
+                <div *ngFor="let s of pack.serviceProducts">
+                  <p>{{ s.name }} - {{ s.description }} ({{ s.price }} {{ s.currency }})</p>
+                </div>
+              </div>
+
+              <div *ngIf="pack.stockProducts.length > 0">
+                <strong>Stock Products:</strong>
+                <div *ngFor="let s of pack.stockProducts">
+                  <p>{{ s.name }} - {{ s.description }} ({{ s.price }} {{ s.currency }})</p>
+                </div>
+              </div>
+
+              <button (click)="removePackage(partner.id, pack.id)">Remove Package</button>
             </div>
           </div>
-
-          <!-- Package load error -->
-          <p *ngIf="partnerPackagesError" class="error">{{ partnerPackagesError }}</p>
+          <ng-template #noPackages>
+            <p><em>This partner has no packages yet.</em></p>
+          </ng-template>
 
           <!-- Add New Package Form -->
-          <h4>Add New Partner Package</h4>
-          <form (ngSubmit)="submitNewPackage()" #packageForm="ngForm">
-            <div class="form-field">
-              <label>Package Name:</label>
-              <input type="text" name="packageName" [(ngModel)]="newPackage.packageName" required />
-            </div>
+          <div class="add-package-form">
+            <h4>Add New Package</h4>
+            <form (ngSubmit)="submitNewPackage()">
+              <label>Package Name: <input [(ngModel)]="newPackage.packageName" name="packageName" required /></label>
+              <label>Description: <input [(ngModel)]="newPackage.packageDescription" name="packageDescription" /></label>
+              <label>Country: <input [(ngModel)]="newPackage.country" name="country" /></label>
+              <label>Country Code: <input [(ngModel)]="newPackage.countryCode" name="countryCode" /></label>
+              <label>City: <input [(ngModel)]="newPackage.city" name="city" /></label>
+              <label>Currency: <input [(ngModel)]="newPackage.currency" name="currency" /></label>
+              <label>Duration: <input [(ngModel)]="newPackage.duration" name="duration" /></label>
+              <label>VAT: <input [(ngModel)]="newPackage.vat" name="vat" /></label>
+              <label>Number of Services: <input [(ngModel)]="newPackage.numberOfServices" name="numberOfServices" /></label>
+              <label>Active:
+                <input type="checkbox" [(ngModel)]="newPackage.active" name="active" />
+              </label>
 
-            <div class="form-field">
-              <label>VAT:</label>
-              <input type="number" name="vat" [(ngModel)]="newPackage.vat" required />
-            </div>
+              <fieldset>
+                <legend>Extra Details</legend>
+                <label>Prop1: <input [(ngModel)]="newPackage.extraDetails.additionalProp1" name="extra1" /></label>
+                <label>Prop2: <input [(ngModel)]="newPackage.extraDetails.additionalProp2" name="extra2" /></label>
+                <label>Prop3: <input [(ngModel)]="newPackage.extraDetails.additionalProp3" name="extra3" /></label>
+              </fieldset>
 
-            <div class="form-field">
-              <label>Country:</label>
-              <input type="text" name="country" [(ngModel)]="newPackage.country" required />
-            </div>
+              <fieldset>
+                <legend>Price Info</legend>
+                <label>Net Price: <input type="number" [(ngModel)]="newPackage.priceDTO.netPrice" name="netPrice" /></label>
+                <label>Total Price: <input type="number" [(ngModel)]="newPackage.priceDTO.totalPrice" name="totalPrice" /></label>
+                <label>Price: <input type="number" [(ngModel)]="newPackage.priceDTO.price" name="price" /></label>
+                <label>Sale Price: <input type="number" [(ngModel)]="newPackage.priceDTO.salePrice" name="salePrice" /></label>
+                <label>VAT: <input type="number" [(ngModel)]="newPackage.priceDTO.vat" name="priceVat" /></label>
+                <label>System Profit %: <input type="number" [(ngModel)]="newPackage.priceDTO.systemProfitPercentage" name="systemProfitPercentage" /></label>
+                <label>Sale %: <input type="number" [(ngModel)]="newPackage.priceDTO.salePercentage" name="salePercentage" /></label>
+              </fieldset>
 
-            <div class="form-field">
-              <label>City:</label>
-              <input type="text" name="city" [(ngModel)]="newPackage.city" required />
-            </div>
+              <fieldset>
+                <legend>Question</legend>
+                <label>Text: <input [(ngModel)]="newPackage.questions[0].text" name="questionText" /></label>
+                <label>Expected Answer: <input [(ngModel)]="newPackage.questions[0].expectedAnswer" name="expectedAnswer" /></label>
+                <label>Type: <input type="number" [(ngModel)]="newPackage.questions[0].type" name="questionType" /></label>
+                <label>Mandatory:
+                  <input type="checkbox" [(ngModel)]="newPackage.questions[0].mandatory" name="mandatory" />
+                </label>
+              </fieldset>
 
-            <div class="form-field">
-              <label>Currency:</label>
-              <input type="text" name="currency" [(ngModel)]="newPackage.currency" required />
-            </div>
+              <fieldset>
+                <legend>Region Info</legend>
+                <label>Country: <input [(ngModel)]="newPackage.regionDTOs[0].country" name="regionCountry" /></label>
+                <label>Country Code: <input [(ngModel)]="newPackage.regionDTOs[0].countryCode" name="regionCountryCode" /></label>
+                <label>City: <input [(ngModel)]="newPackage.regionDTOs[0].city" name="regionCity" /></label>
+              </fieldset>
 
-            <div class="form-field">
-              <label>Region:</label>
-              <input type="text" name="region" [(ngModel)]="newPackage.region" required />
-            </div>
-
-            <div class="form-field">
-              <label>Extra Details:</label>
-              <textarea name="extraDetails" [(ngModel)]="newPackage.extraDetails" placeholder="Enter extra details"></textarea>
-            </div>
-
-            <div class="form-field">
-              <label>Service Products:</label>
-              <textarea name="serviceProducts" [(ngModel)]="newPackage.serviceProducts" placeholder="Enter service products"></textarea>
-            </div>
-
-            <button type="submit">Save Package</button>
-          </form>
-
-          <button (click)="closeDetails()">Close Details</button>
+              <button type="submit">Submit Package</button>
+              <p *ngIf="submitMessage">{{ submitMessage }}</p>
+            </form>
+          </div>
         </div>
-
-        <!-- Details load error -->
-        <p *ngIf="detailsError && selectedPartnerId === partner.id" class="error">{{ detailsError }}</p>
       </div>
     </div>
-  </div>
+  </ng-container>
 
-  <!-- No data template -->
   <ng-template #noData>
-    <p *ngIf="!isLoading && !errorMessage">No partners found.</p>
+    <p>No partners found.</p>
   </ng-template>
 </div>
