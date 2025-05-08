@@ -1,0 +1,151 @@
+<div class="partners-page">
+  <h2>Our Partners</h2>
+  <div *ngIf="actionMessage" class="action-message">{{ actionMessage }}</div>
+
+  <div *ngIf="isLoading" class="loading">Loading partners...</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  <div *ngIf="!isLoading && partners.length === 0" class="no-partners">
+    No partners found.
+  </div>
+
+  <div class="partner-list" *ngIf="!isLoading && partners.length > 0">
+    <div class="partner-card" *ngFor="let p of partners">
+      <img [src]="p.photoUrl || 'assets/default-avatar.png'" alt="{{ p.name }}" />
+      <div class="info">
+        <h3>{{ p.name }}</h3>
+        <p>Email: {{ p.email }}</p>
+        <p>Phone: {{ p.phoneNumber }}</p>
+        <p>Status:
+          <span [class.approved]="p.isApproved" [class.suspended]="p.isSuspended">
+            {{ p.isSuspended ? 'Suspended' : (p.isApproved ? 'Approved' : 'Pending') }}
+          </span>
+        </p>
+
+        <button class="status-btn" (click)="togglePartnerStatus(p)">
+          {{ !p.isApproved ? 'Approve' : (p.isSuspended ? 'Unsuspend' : 'Suspend') }}
+        </button>
+
+        <button class="toggle-btn" (click)="toggleExtraDetails(p)">
+          {{ detailsMap[p.id] ? 'Hide Details' : 'View Details' }}
+        </button>
+        <div *ngIf="detailsMap[p.id]" class="extra-details">
+          <h4>Extra Details</h4>
+          <p><strong>Nickname:</strong> {{ detailsMap[p.id].nickName }}</p>
+          <p><strong>Preferred Phone:</strong> {{ detailsMap[p.id].preferredPhoneNumber }}</p>
+          <img [src]="detailsMap[p.id].coverPhotoUrl" alt="Cover" class="cover-photo" />
+        </div>
+
+        <button class="toggle-btn" (click)="togglePackages(p)">
+          {{ packagesMap[p.id] ? 'Hide Packages' : 'View Packages' }}
+        </button>
+        <div *ngIf="packagesMap[p.id]" class="package-list">
+          <h4>Packages ({{ packagesMap[p.id].length }})</h4>
+          <div *ngIf="packagesMap[p.id].length === 0" class="no-packages">
+            No packages found.
+          </div>
+          <div class="packages-grid">
+            <div class="package-card" *ngFor="let pkg of packagesMap[p.id]">
+              <h5 class="pkg-title">{{ pkg.packageName }}</h5>
+              <p class="pkg-location">
+                <strong>Location:</strong> {{ pkg.city }}, {{ pkg.countryCode }}
+              </p>
+              <p><strong>VAT:</strong> {{ pkg.vat }}</p>
+              <p><strong>Currency:</strong> {{ pkg.currency }}</p>
+              <p>
+                <strong>Total Price:</strong>
+                {{ pkg.priceDTO.totalPrice | currency:pkg.currency }}
+              </p>
+              <p><strong>Active:</strong> {{ pkg.active ? 'Yes' : 'No' }}</p>
+
+              <button class="sub-toggle-btn" (click)="toggleProducts(pkg.id)">
+                {{ showProductsMap[pkg.id] ? 'Hide Products' : 'Show Products' }}
+              </button>
+              <div *ngIf="showProductsMap[pkg.id] && (pkg.serviceProducts.length + pkg.stockProducts.length) === 0"
+                   class="no-items">
+                No products available.
+              </div>
+              <ul *ngIf="showProductsMap[pkg.id] && (pkg.serviceProducts.length + pkg.stockProducts.length) > 0"
+                  class="product-list">
+                <li *ngFor="let prod of pkg.serviceProducts">
+                  {{ prod.name }} (Service) – {{ prod.price | currency:pkg.currency }}
+                </li>
+                <li *ngFor="let prod of pkg.stockProducts">
+                  {{ prod.name }} (Stock) – {{ prod.price | currency:pkg.currency }}
+                </li>
+              </ul>
+
+              <button class="sub-toggle-btn" (click)="toggleQuestions(pkg.id)">
+                {{ showQuestionsMap[pkg.id] ? 'Hide Questions' : 'Show Questions' }}
+              </button>
+              <div *ngIf="showQuestionsMap[pkg.id] && pkg.questions.length === 0" class="no-items">
+                No questions available.
+              </div>
+              <ul *ngIf="showQuestionsMap[pkg.id] && pkg.questions.length > 0" class="question-list">
+                <li *ngFor="let q of pkg.questions">
+                  {{ q.text }} <span *ngIf="q.mandatory">*</span>
+                </li>
+              </ul>
+
+            </div>
+          </div>
+        </div>
+
+        <button class="toggle-btn" (click)="startAddPackage(p.id)">Add Package</button>
+
+        <div *ngIf="selectedPartnerId === p.id" class="add-package-form">
+          <h4>Add Package for {{ p.name }}</h4>
+          <form [formGroup]="packageForm" (ngSubmit)="addPackage()" novalidate>
+            <label>Country / Region</label>
+            <select formControlName="countryCode" (change)="onCountryChange()">
+              <option value="" disabled>Select region</option>
+              <option *ngFor="let r of regions" [value]="r.countryCode">{{ r.country }} / {{ r.city }}</option>
+            </select>
+
+            <label>City</label>
+            <input formControlName="city" placeholder="Enter city" />
+
+            <label>VAT (%)</label>
+            <input type="number" formControlName="vat" min="0" />
+
+            <label>Package Name</label>
+            <input formControlName="packageName" placeholder="Enter name" />
+
+            <label>Currency</label>
+            <input formControlName="currency" placeholder="Enter currency" />
+
+            <label>Extra Details</label>
+            <div formGroupName="extraDetails">
+              <input formControlName="additionalProp1" placeholder="Feature 1" />
+              <input formControlName="additionalProp2" placeholder="Feature 2" />
+              <input formControlName="additionalProp3" placeholder="Feature 3" />
+            </div>
+
+            <label>Services & Products</label>
+            <div *ngFor="let sr of servicesRegions">
+              <h6>{{ sr.country }} / {{ sr.city }}</h6>
+              <div>
+                <strong>Services:</strong>
+                <label *ngFor="let svc of sr.services">
+                  <input type="checkbox" (change)="packageForm.value.serviceProducts.push(svc)" /> {{ svc.name }}
+                </label>
+              </div>
+              <div>
+                <strong>Products:</strong>
+                <label *ngFor="let pr of sr.products">
+                  <input type="checkbox" (change)="packageForm.value.stockProducts.push(pr)" /> {{ pr.name }}
+                </label>
+              </div>
+            </div>
+
+            <label>Questions (JSON array)</label>
+            <input formControlName="questions" placeholder="e.g. [{…}]" />
+
+            <button type="submit" class="status-btn" [disabled]="packageForm.invalid">Save Package</button>
+            <button type="button" class="toggle-btn" (click)="selectedPartnerId = null">Cancel</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

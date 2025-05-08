@@ -77,6 +77,38 @@
                   <hr />
                 </div>
               </div>
+              <div *ngIf="pack.questions.length > 0">
+                <strong>Questions:</strong>
+                <div *ngFor="let q of pack.questions; let i = index">
+                  <div *ngIf="editQuestionIndex !== i; else editForm">
+                    <p>Text: {{ q.text }}</p>
+                    <p>Expected Answer: {{ q.expectedAnswer }}</p>
+                    <p>Type: {{ q.type }}</p>
+                    <p>Mandatory: {{ q.mandatory ? 'Yes' : 'No' }}</p>
+
+                    <button (click)="startEditQuestion(pack.id, i)">Update</button>
+                    <button (click)="removeQuestionFromPackage(pack.id, i)">Remove</button>
+                    <hr />
+                  </div>
+
+                  <ng-template #editForm>
+                    <label>Text: <input [(ngModel)]="editedQuestion.text" /></label><br />
+                    <label>Expected Answer: <input [(ngModel)]="editedQuestion.expectedAnswer" /></label><br />
+                    <label>Type: <input type="number" [(ngModel)]="editedQuestion.type" /></label><br />
+                    <label>Mandatory:
+                      <select [(ngModel)]="editedQuestion.mandatory">
+                        <option [value]="true">Yes</option>
+                        <option [value]="false">No</option>
+                      </select>
+                    </label><br />
+
+                    <button (click)="saveEditedQuestion(pack.id, i)">Save</button>
+                    <button (click)="cancelEdit()">Cancel</button>
+                    <hr />
+                  </ng-template>
+                </div>
+              </div>
+
 
 
 
@@ -146,6 +178,19 @@
                   <input type="checkbox" [(ngModel)]="newPackage.questions[0].mandatory" name="mandatory" />
                 </label>
               </fieldset>
+              <fieldset>
+                <legend>Questions</legend>
+                <div *ngFor="let q of newPackage.questions; let i = index">
+                  <label>Text: <input [(ngModel)]="q.text" [name]="'questionText' + i" /></label>
+                  <label>Expected Answer: <input [(ngModel)]="q.expectedAnswer" [name]="'expectedAnswer' + i" /></label>
+                  <label>Type: <input type="number" [(ngModel)]="q.type" [name]="'questionType' + i" /></label>
+                  <label>Mandatory: <input type="checkbox" [(ngModel)]="q.mandatory" [name]="'mandatory' + i" /></label>
+                  <button type="button" (click)="removeQuestion(i)">Remove Question</button>
+                  <hr />
+                </div>
+                <button type="button" (click)="addQuestion()">Add Question</button>
+              </fieldset>
+
 
               <fieldset>
                 <legend>Region Info</legend>

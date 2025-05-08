@@ -25,15 +25,13 @@
     </thead>
     <tbody>
       <tr *ngFor="let res of reservations">
-        <td>{{ res.id }}</td>
-        <td>{{ res.arrivalTimeFrom | date: 'short' }}</td>
-        <td>{{ res.arrivalTimeTo | date: 'short' }}</td>
-        <td>{{ res.description || 'N/A' }}</td>
-        <td>{{ res.customer?.name || 'Unknown' }}</td>
-        <td>
-          <!-- <span class="status-label" [ngStyle]="{ color: res.lastReservationEvents?.statusColor || 'inherit' }">
-            {{ res.lastReservationEvents?.reservationStatus || 'Unknown' }}
-          </span> -->
+        <td data-label="ID">{{ res.id }}</td>
+        <td data-label="Arrival From">{{ res.arrivalTimeFrom | date: 'short' }}</td>
+        <td data-label="Arrival To">{{ res.arrivalTimeTo | date: 'short' }}</td>
+        <td data-label="Description">{{ res.description || 'N/A' }}</td>
+        <td data-label="Customer Name">{{ res.customer?.name || 'Unknown' }}</td>
+        <td data-label="Status">
+
           <span class="status-label" [ngStyle]="{color: getStatusColor(res.lastReservationEvents?.reservationStatus)}">
             {{ res.lastReservationEvents?.reservationStatus || 'Unknown' }}
           </span>

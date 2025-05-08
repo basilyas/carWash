@@ -1,38 +1,100 @@
+/* Container styling */
 .reservations-container {
-  max-width: 1000px;
-  margin: 30px auto;
-  padding: 20px;
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 25px;
   background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h2 {
+.reservations-container h2 {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  color: #2d3748;
 }
 
+/* Loading and Error */
 .loading, .error, .empty {
   text-align: center;
-  font-weight: bold;
-  color: #666;
+  margin-top: 20px;
+  font-size: 16px;
 }
 
-table {
+.error {
+  color: #e53e3e;
+}
+
+.empty {
+  color: #718096;
+}
+
+/* Table styling */
+.reservations-table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 20px;
 }
 
-thead {
-  background-color: #f4f4f4;
-}
-
-th, td {
-  padding: 12px;
-  border: 1px solid #ddd;
+.reservations-table th,
+.reservations-table td {
+  padding: 12px 16px;
   text-align: left;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-th {
+.reservations-table th {
+  background-color: #f7fafc;
+  color: #2c5282;
   font-weight: 600;
+}
+
+.reservations-table tbody tr:hover {
+  background-color: #f1f5f9;
+  transition: background-color 0.2s;
+}
+
+/* Status label */
+.status-label {
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background-color: #edf2f7;
+  display: inline-block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .reservations-table thead {
+    display: none;
+  }
+
+  .reservations-table, .reservations-table tbody, .reservations-table tr, .reservations-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .reservations-table tr {
+    margin-bottom: 15px;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .reservations-table td {
+    text-align: right;
+    padding-left: 50%;
+    position: relative;
+  }
+
+  .reservations-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 16px;
+    width: 45%;
+    padding-right: 10px;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: bold;
+    color: #4a5568;
+  }
 }

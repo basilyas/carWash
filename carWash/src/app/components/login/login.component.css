@@ -1,32 +1,36 @@
-body, html {
+/* General page styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
-  height: 100%;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background: #f4f4f4;
+  background: linear-gradient(to right, #ece9e6, #ffffff);
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100vh;
 }
 
-/* Wrapper to center everything */
+/* Wrapper and container layout */
 .login-wrapper {
-  display: flex;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  max-width: 900px;
   width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* Left image side */
+.container {
+  display: flex;
+  background-color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  min-height: 500px;
+}
+
+/* Image styling */
 .login-image {
   flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .login-image img {
@@ -35,7 +39,7 @@ body, html {
   object-fit: cover;
 }
 
-/* Right form side */
+/* Form container styling */
 .login-container {
   flex: 1;
   padding: 40px;
@@ -45,48 +49,72 @@ body, html {
 }
 
 .login-container h2 {
-  margin-bottom: 24px;
-  color: #333;
+  margin-bottom: 20px;
   font-size: 28px;
+  color: #333;
+  text-align: center;
 }
 
-/* Inputs and form elements */
-.login-container label {
-  margin-bottom: 6px;
-  font-weight: 600;
+/* Form elements */
+form label {
+  display: block;
+  margin-bottom: 8px;
   color: #555;
+  font-weight: 500;
 }
 
-.login-container input {
-  padding: 10px;
+form input[type="text"],
+form input[type="password"] {
+  width: 100%;
+  padding: 12px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 16px;
-  width: 100%;
-  box-sizing: border-box;
+  font-size: 14px;
+  transition: border-color 0.3s;
 }
 
-/* Submit button */
-.login-container button {
+form input:focus {
+  border-color: #5a67d8;
+  outline: none;
+}
+
+/* Button styling */
+form button {
+  width: 100%;
   padding: 12px;
-  background-color: #007bff;
-  border: none;
+  background-color: #5a67d8;
   color: #fff;
-  font-weight: bold;
+  border: none;
   border-radius: 8px;
+  font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.login-container button:hover {
-  background-color: #0056b3;
+form button:hover {
+  background-color: #434190;
 }
 
 /* Error message */
-.login-container .error {
-  color: #e74c3c;
-  margin-top: 12px;
+.error {
+  color: red;
+  text-align: center;
+  margin-top: 10px;
   font-size: 14px;
 }
 
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .login-image {
+    height: 200px;
+  }
+
+  .login-container {
+    padding: 20px;
+  }
+}

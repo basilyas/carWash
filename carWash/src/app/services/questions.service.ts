@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface Question {
-  id: string;
+  id?: string;
   text: string;
   type: number;
   expectedAnswer: string;

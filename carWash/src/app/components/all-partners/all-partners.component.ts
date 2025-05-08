@@ -8,6 +8,7 @@ import { PartnerExtraDetailsService } from '../../services/partner-extar-details
 import { PartnerPackagesService, PartnerPackage } from '../../services/partner-packages.service';
 import { AddPartnerPackageService } from '../../services/add-partner-package.service';
 import { RemovePartnerPackageService } from '../../services/remove-partner-package.service';
+import { QuestionsService, Question } from '../../services/questions.service'; // adjust the path if needed
 
 @Component({
   selector: 'app-all-partners',
@@ -99,8 +100,10 @@ export class AllPartnersComponent implements OnInit {
   };
   submitMessage = '';
 
-  editQuestionId: string | null = null;
+  editQuestionIndex: number | null = null;
   editedQuestion: any = {};
+
+
 
   constructor(
     private allPartnersService: AllPartnersService,
@@ -108,6 +111,8 @@ export class AllPartnersComponent implements OnInit {
     private partnerPackagesService: PartnerPackagesService,
     private addPartnerPackageService: AddPartnerPackageService ,
     private removePartnerPackageService: RemovePartnerPackageService,
+    private questionsService: QuestionsService // <--- ADDED
+
   ) {}
 
   ngOnInit(): void {
@@ -203,6 +208,82 @@ export class AllPartnersComponent implements OnInit {
       }
     });
   }
+  addQuestion() {
+    this.newPackage.questions.push({
+      id: '', // or generate dynamically if needed
+      text: '',
+      expectedAnswer: '',
+      type: 0,
+      mandatory: false
+    });
+  }
+  removeQuestion(index: number) {
+    this.newPackage.questions.splice(index, 1);
+  }
+  startEditQuestion(packageId: string, index: number): void {
+    const pkg = this.selectedPartnerPackages.find(p => p.id === packageId);
+    if (!pkg) return;
+
+    this.editQuestionIndex = index;
+    this.editedQuestion = { ...pkg.questions[index] }; // clone the question
+  }
+
+  cancelEdit(): void {
+    this.editQuestionIndex = null;
+    this.editedQuestion = {};
+  }
+
+  saveEditedQuestion(packageId: string, index: number): void {
+    const pkg = this.selectedPartnerPackages.find(p => p.id === packageId);
+    if (!pkg || !this.selectedPartnerId) return;
+
+    // Update question locally
+    pkg.questions[index] = { ...this.editedQuestion };
+
+    // Send ONLY the array of questions to the backend
+    this.updateQuestionsOnServer(this.selectedPartnerId, packageId, pkg.questions);
+
+    this.cancelEdit();
+  }
+
+
+  removeQuestionFromPackage(packageId: string, index: number): void {
+    const pkg = this.selectedPartnerPackages.find(p => p.id === packageId);
+    if (!pkg || !this.selectedPartnerId) return;
+
+    if (confirm('Are you sure you want to remove this question?')) {
+      pkg.questions.splice(index, 1);
+      this.updateQuestionsOnServer(this.selectedPartnerId, packageId, pkg.questions);
+    }
+  }
+
+  updateQuestionsOnServer(partnerId: string, packageId: string, questions: Question[]) {
+    this.questionsService.updateQuestions(partnerId, packageId, questions).subscribe({
+      next: (res) => {
+        console.log('Questions updated successfully!', res);
+      },
+      error: (err) => {
+        console.error('Error updating questions:', err);
+      }
+    });
+  }
+
+  addQuestionToPackage(packageId: string): void {
+    const pkg = this.selectedPartnerPackages.find(p => p.id === packageId);
+    if (!pkg || !this.selectedPartnerId) return;
+
+    const newQuestion: Question = {
+      id: '', // or generate UUID
+      text: 'New Question',
+      expectedAnswer: '',
+      type: 0,
+      mandatory: false
+    };
+
+    pkg.questions.push(newQuestion);
+    this.updateQuestionsOnServer(this.selectedPartnerId, packageId, pkg.questions);
+  }
+
 
 
 }
