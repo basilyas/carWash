@@ -1,15 +1,199 @@
-<div class="statistics-container">
-  <h2>System Statistics</h2>
+<!-- system-statistics.component.html -->
+<div class="statistics-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header">
+    <h1>System Statistics</h1>
+    <div class="header-actions">
+      <button class="refresh-btn" (click)="fetchStatistics()" [disabled]="isLoading">
+        <i class="fas fa-sync-alt" [class.spinning]="isLoading"></i>
+        <span>Refresh</span>
+      </button>
+      <span class="last-updated">Last updated: {{getLastUpdatedTime()}}</span>
+    </div>
+  </div>
 
-  <p *ngIf="isLoading">Loading statistics...</p>
-  <p *ngIf="errorMessage && !isLoading" class="error">{{ errorMessage }}</p>
+  <!-- Loading State -->
+  <div *ngIf="isLoading && !statistics" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading system statistics...</p>
+  </div>
 
-  <div *ngIf="statistics && !isLoading">
-    <div class="stat-card"><strong>Customers:</strong> {{ statistics.customersNumber }}</div>
-    <div class="stat-card"><strong>Partners:</strong> {{ statistics.partnersNumber }}</div>
-    <div class="stat-card"><strong>Cars:</strong> {{ statistics.carsNumber }}</div>
-    <div class="stat-card"><strong>Total Reservations:</strong> {{ statistics.totalReservations }}</div>
-    <div class="stat-card"><strong>Problematic Reservations:</strong> {{ statistics.problematicReservations }}</div>
-    <div class="stat-card"><strong>Closed Reservations:</strong> {{ statistics.closedReservations }}</div>
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error-container">
+    <div class="error-card">
+      <i class="fas fa-exclamation-triangle"></i>
+      <h3>Error Loading Statistics</h3>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-btn" (click)="fetchStatistics()">
+        <i class="fas fa-redo"></i>
+        Try Again
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Content -->
+  <div *ngIf="statistics && !isLoading" class="statistics-content">
+    <!-- Overview Cards -->
+    <div class="stats-grid">
+      <!-- Total Customers -->
+      <div class="stat-card customers">
+        <div class="card-header">
+          <div class="icon-container">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="card-title">
+            <h3>Total Customers</h3>
+            <span class="card-subtitle">Registered users</span>
+          </div>
+        </div>
+        <div class="card-value">
+          {{ formatNumber(statistics.customersNumber) }}
+        </div>
+        <div class="card-footer">
+          <div class="progress-bar">
+            <div class="progress customers-progress" [style.width.%]="getProgressPercentage(statistics.customersNumber, 1000)"></div>
+          </div>
+          <span class="progress-text">{{ getProgressPercentage(statistics.customersNumber, 1000) }}% of target</span>
+        </div>
+      </div>
+
+      <!-- Active Partners -->
+      <div class="stat-card partners">
+        <div class="card-header">
+          <div class="icon-container">
+            <i class="fas fa-handshake"></i>
+          </div>
+          <div class="card-title">
+            <h3>Active Partners</h3>
+            <span class="card-subtitle">Service providers</span>
+          </div>
+        </div>
+        <div class="card-value">
+          {{ formatNumber(statistics.partnersNumber) }}
+        </div>
+      </div>
+
+      <!-- Registered Cars -->
+      <div class="stat-card cars">
+        <div class="card-header">
+          <div class="icon-container">
+            <i class="fas fa-car"></i>
+          </div>
+          <div class="card-title">
+            <h3>Registered Cars</h3>
+            <span class="card-subtitle">In our system</span>
+          </div>
+        </div>
+        <div class="card-value">
+          {{ formatNumber(statistics.carsNumber) }}
+        </div>
+      </div>
+
+      <!-- Total Reservations -->
+      <div class="stat-card reservations">
+        <div class="card-header">
+          <div class="icon-container">
+            <i class="fas fa-calendar-check"></i>
+          </div>
+          <div class="card-title">
+            <h3>Total Reservations</h3>
+            <span class="card-subtitle">All time</span>
+          </div>
+        </div>
+        <div class="card-value">
+          {{ formatNumber(statistics.totalReservations) }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservation Status Section -->
+    <div class="reservation-status-section">
+      <div class="section-header">
+        <h2>Reservation Status Overview</h2>
+      </div>
+
+      <div class="reservation-cards-grid">
+        <!-- Problematic Reservations -->
+        <div class="wide-card problematic">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="card-details">
+              <h3>Problematic Reservations</h3>
+              <div class="value-with-badge">
+                <span class="value">{{ formatNumber(statistics.problematicReservations) }}</span>
+                <span class="badge danger">{{ getReservationPercentage(statistics.problematicReservations, statistics.totalReservations) }}%</span>
+              </div>
+              <p class="description">Reservations requiring attention</p>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="action-btn">View Details</button>
+          </div>
+        </div>
+
+        <!-- Closed Reservations -->
+        <div class="wide-card completed">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="card-details">
+              <h3>Closed Reservations</h3>
+              <div class="value-with-badge">
+                <span class="value">{{ formatNumber(statistics.closedReservations) }}</span>
+                <span class="badge success">{{ getReservationPercentage(statistics.closedReservations, statistics.totalReservations) }}%</span>
+              </div>
+              <p class="description">Successfully completed services</p>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="action-btn">View Reports</button>
+          </div>
+        </div>
+
+        <!-- Active Reservations -->
+        <div class="wide-card active">
+          <div class="card-content">
+            <div class="card-icon">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+            <div class="card-details">
+              <h3>Active Reservations</h3>
+              <div class="value-with-badge">
+                <span class="value">{{ formatNumber(getActiveReservations()) }}</span>
+                <span class="badge warning">{{ getReservationPercentage(getActiveReservations(), statistics.totalReservations) }}%</span>
+              </div>
+              <p class="description">Currently in progress</p>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="action-btn">Monitor</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div class="summary-section">
+      <div class="summary-card">
+        <h3>Quick Summary</h3>
+        <ul class="summary-list">
+          <li>
+            <span class="summary-label">Success Rate:</span>
+            <span class="summary-value">{{ getSuccessRate() }}%</span>
+          </li>
+          <li>
+            <span class="summary-label">Average Partners per Customer:</span>
+            <span class="summary-value">{{ getAveragePartnersPerCustomer() }}</span>
+          </li>
+          <li>
+            <span class="summary-label">Reservations per Car:</span>
+            <span class="summary-value">{{ getReservationsPerCar() }}</span>
+          </li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>

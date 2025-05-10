@@ -1,0 +1,96 @@
+/* footer.component.css */
+.footer {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: #e2e8f0;
+    margin-left: 260px; /* Account for sidebar */
+    margin-top: auto;
+    padding: 20px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  @media (max-width: 768px) {
+    .footer {
+      margin-left: 70px;
+    }
+  }
+  
+  .footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  @media (max-width: 640px) {
+    .footer-container {
+      flex-direction: column;
+      text-align: center;
+      padding: 0 20px;
+    }
+  }
+  
+  /* Copyright Section */
+  .footer-left {
+    flex: 1;
+  }
+  
+  .copyright {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    margin: 0;
+  }
+  
+  /* Contact Section */
+  .footer-right {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  @media (max-width: 640px) {
+    .footer-right {
+      justify-content: center;
+    }
+  }
+  
+  .contact-info {
+    display: flex;
+    gap: 25px;
+    align-items: center;
+  }
+  
+  @media (max-width: 480px) {
+    .contact-info {
+      flex-direction: column;
+      gap: 12px;
+    }
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+  }
+  
+  .contact-item i {
+    width: 16px;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+  }
+  
+  .contact-item a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .contact-item a:hover {
+    color: #ffffff;
+  }

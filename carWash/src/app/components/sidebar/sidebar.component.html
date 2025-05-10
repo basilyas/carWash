@@ -1,7 +1,22 @@
+<!-- sidebar.component.html -->
 <div class="sidebar">
-  <div class="link" routerLink="all_partners" routerLinkActive="active-link" style="cursor: pointer;">All Partners</div>
-  <div class="link" routerLink="all_customers" routerLinkActive="active-link" style="cursor: pointer;">All Customers</div>
-  <div class="link" routerLink="system_statistics" routerLinkActive="active-link" style="cursor: pointer;">System Statistics</div>
-  <div class="link" routerLink="all_reservations" routerLinkActive="active-link" style="cursor: pointer;">All Reservations</div>
-
+  <!-- Logo section -->
+  <div class="sidebar-logo">
+    <img src="assets/admin.jpg" alt="Wosh">
+    <span>ADMIN PANEL</span>
+  </div>
+  
+  <!-- Navigation links -->
+  <div class="link" routerLink="all_partners" routerLinkActive="active-link">
+    <span>All Partners</span>
+  </div>
+  <div class="link" routerLink="all_customers" routerLinkActive="active-link">
+    <span>All Customers</span>
+  </div>
+  <div class="link" routerLink="system_statistics" routerLinkActive="active-link">
+    <span>System Statistics</span>
+  </div>
+  <div class="link" routerLink="all_reservations" routerLinkActive="active-link">
+    <span>All Reservations</span>
+  </div>
 </div>

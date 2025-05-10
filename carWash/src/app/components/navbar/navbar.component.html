@@ -1,0 +1,107 @@
+<!-- navbar.component.html -->
+<nav class="navbar">
+    <div class="navbar-container">
+      <div class="navbar-left">
+        <div class="logo" routerLink="/dashboard">
+          <div class="logo-icon">
+            <img src="assets/login.jpg" alt="Wosh Admin Logo">
+          </div>
+          <div class="logo-text">
+            <span class="brand-name">Car Washing</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="navbar-right">
+        <a href="#" class="nav-link" (click)="openAbout($event)">
+          <i class="fas fa-info-circle"></i>
+          <span>About</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+  
+  <!-- About Modal -->
+  <div class="modal-backdrop" *ngIf="showAboutModal" (click)="closeAbout()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="modal-logo">
+            <img src="assets/logo.png" alt="Wosh Logo">
+          </div>
+          <h2>About Wosh Admin</h2>
+        </div>
+        <button class="close-btn" (click)="closeAbout()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="modal-content-section">
+          <div class="version-info">
+            <span class="version-badge">v1.0.0</span>
+            <span class="angular-version">Angular {{angularVersion}}</span>
+          </div>
+          
+          <p class="description">
+            The Wosh Admin Dashboard is a comprehensive management platform designed to 
+            streamline operations, manage partners, track reservations, and monitor customer interactions.
+          </p>
+        </div>
+        
+        <div class="modal-content-section">
+          <h3>Key Features</h3>
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-handshake"></i>
+              </div>
+              <h4>Partner Management</h4>
+              <p>Efficiently manage and monitor all service partners</p>
+            </div>
+            
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <h4>Customer Management</h4>
+              <p>Track customer data and preferences</p>
+            </div>
+            
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <h4>Reservation Tracking</h4>
+              <p>Monitor and manage all service bookings</p>
+            </div>
+            
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <h4>Real-time Analytics</h4>
+              <p>Get insights with live dashboard statistics</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-content-section">
+          <div class="support-info">
+            <div class="support-item">
+              <i class="fas fa-envelope"></i>
+              <span>admin</span>
+            </div>
+            <div class="support-item">
+              <i class="fas fa-globe"></i>
+              <span>www.wosh.co.il</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary" (click)="closeAbout()">
+            <i class="fas fa-check"></i>
+            Got it
+          </button>
+      </div>
+    </div>
+  </div>
