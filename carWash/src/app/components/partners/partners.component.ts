@@ -2,17 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { Partner,
   PartnerExtraDetails,
   PartnerPackage,
-  RegionDTO,
-  ServiceRegionResponse,
   PartnersService } from '../../services/partners.service';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @Component({
   selector: 'app-partners',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule],
+  imports: [CommonModule,ReactiveFormsModule,FormsModule],
   templateUrl: './partners.component.html',
   styleUrls: ['./partners.component.css']
 })
@@ -26,29 +24,82 @@ export class PartnersComponent implements OnInit {
   showProductsMap: { [pkgId: string]: boolean } = {};
   showQuestionsMap: { [pkgId: string]: boolean } = {};
   actionMessage: string = ''; // to show approve/suspend feedback
+  showAddPackageFormMap: { [partnerId: string]: boolean } = {};
 
-  packageForm: FormGroup;
-  regions: RegionDTO[] = [];
-  servicesRegions: ServiceRegionResponse[] = [];
-  selectedPartnerId: string | null = null;
+  newPackage: any = {
+    vat: '',
+    country: 'USA',
+    countryCode: 'US',
+    city: 'New York',
+    packageName: 'Starter Package',
+    packageDescription: 'Basic entry package',
+    currency: 'USD',
+    duration: '30',
+    numberOfServices: '5',
+    active: true,
+    extraDetails: {
+      additionalProp1: 'info1',
+      additionalProp2: 'info2',
+      additionalProp3: 'info3'
+    },
+    priceDTO: {
+      netPrice: 100,
+      totalPrice: 120,
+      price: 100,
+      salePrice: 90,
+      vat: 20,
+      systemProfitPercentage: 10,
+      salePercentage: 10,
+    },
+    questions: [
+      { text: 'Do you agree to the terms?', expectedAnswer: 'Yes', type: 1, mandatory: true }
+    ],
+    // regions: [ "Region1", "Region2" ] ,
+    serviceProducts: [
+      {
+        name: 'Cleaning Service',
+        description: 'Basic cleaning package',
+        price: 50,
+        productCode: 'CLEAN01',
+        internalID: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',  // <-- valid UUID
+        currency: 'USD',
+        externalID: 'a987fbc9-4bed-3078-cf07-9141ba07c9f3',  // <-- valid UUID
+        status: 'Publish',
+        salePercentage: 10,
+        systemProfitPercentage: 5,
+        generalCosts: 5
+      }
+    ],
+    stockProducts: [
+      {
+        name: 'Cleaning Kit',
+        description: 'Tools and supplies',
+        price: 20,
+        productCode: 'KIT01',
+        internalID: 'c9bf9e57-1685-4c89-bafb-ff5af830be8a',  // <-- valid UUID
+        currency: 'USD',
+        externalID: '9c858901-8a57-4791-81fe-4c455b099bc9',  // <-- valid UUID
+        status: 'Publish',
+        salePercentage: 5,
+        systemProfitPercentage: 2,
+        generalCosts: 3
+      }
+    ],
+    regionDTOs: [
+      {
+        // id:'',
+        country: 'USA',
+        countryCode: 'US',
+        city: 'New York',
+      }
+    ]
+  };
+  submitMessage = '';
+
 
   constructor(private partnersService: PartnersService,private fb: FormBuilder
   ) {
-    this.packageForm = this.fb.group({
-      countryCode: [''],
-      city: [''],
-      vat: [''],
-      packageName: [''],
-      currency: [''],
-      extraDetails: this.fb.group({
-        additionalProp1: [''],
-        additionalProp2: [''],
-        additionalProp3: ['']
-      }),
-      serviceProducts: [[]],
-      stockProducts: [[]],
-      questions: [[]]
-    });
+
    }
 
   ngOnInit(): void {
@@ -140,66 +191,77 @@ export class PartnersComponent implements OnInit {
   toggleQuestions(pkgId: string) {
     this.showQuestionsMap[pkgId] = !this.showQuestionsMap[pkgId];
   }
-// Show add package form
-startAddPackage(partnerId: string) {
-  this.selectedPartnerId = partnerId;
-  this.regions = [];
-  this.servicesRegions = [];
-  this.packageForm.reset();
+  toggleAddPackageForm(partnerId: string) {
+  this.showAddPackageFormMap[partnerId] = !this.showAddPackageFormMap[partnerId];
 }
 
-// Load regions when country changes
-onCountryChange() {
-  const code = this.packageForm.value.countryCode;
-  if (code) {
-    this.partnersService.getRegions(code).subscribe(res => this.regions = res);
+
+submitNewPackage(p:Partner): void {
+  if (!p.id) {
+    this.submitMessage = 'Partner ID is missing.';
+    return;
   }
-}
 
-// Load services/products for selected regions
-loadServices() {
-  this.partnersService.getServicesByRegions(this.regions).subscribe(res => {
-    this.servicesRegions = res;
+  this.partnersService.addPartnerPackage(p.id, this.newPackage).subscribe({
+    next: (response) => {
+      this.submitMessage = 'Package added successfully!';
+      this.fetchPartners();
+    },
+    error: (error) => {
+      console.error('Failed to add partner package:', error);
+      this.submitMessage = 'Failed to add package. Please try again.';
+    }
   });
 }
+removePackage(partnerId: string, packageId: string): void {
+  if (confirm('Are you sure you want to remove this package?')) {
+    this.partnersService.removePartnerPackage(partnerId, packageId).subscribe({
+      next: () => {
+        // Remove the package from the local array
+        this.packagesMap[partnerId] = this.packagesMap[partnerId].filter(pkg => pkg.id !== packageId);
+        alert('Package removed successfully.');
+      },
+      error: (error: any) => {
+        console.error('Error removing package:', error);
+        alert('Failed to remove the package.');
+      }
+    });
+  }
+}
+editingQuestionIdMap: { [packageId: string]: string } = {};
 
-// Submit new package (FIXED country assignment and default arrays)
-addPackage() {
-  if (!this.selectedPartnerId) return;
+toggleEdit(packageId: string | undefined, questionId: string | undefined) {
+  if (!packageId || !questionId) return;
+  this.editingQuestionIdMap[packageId] = questionId;
+}
 
-  const code = this.packageForm.value.countryCode;
-  const region = this.regions.find(r => r.countryCode === code);
 
-  const pkg: PartnerPackage = {
-    id: '',
-    vat: this.packageForm.value.vat,
-    country: region?.country || '',
-    countryCode: code,
-    city: this.packageForm.value.city,
-    packageName: this.packageForm.value.packageName,
-    currency: this.packageForm.value.currency,
-    extraDetails: this.packageForm.value.extraDetails,
-    serviceProducts: this.packageForm.value.serviceProducts || [],
-    stockProducts: this.packageForm.value.stockProducts || [],
-    questions: this.packageForm.value.questions || [],
-    regionDTOs: this.regions,
-    priceDTO: { netPrice:0, totalPrice:0, price:0, salePrice:0, vat:0, systemProfitPercentage:0, salePercentage:0 },
-    active: true
+cancelEdit(packageId: string) {
+  delete this.editingQuestionIdMap[packageId];
+}
+
+submitUpdate(packageId: string, p: Partner, question: any) {
+  const updatedQuestion = {
+    id: question.id,
+    text: question.text,
+    type: question.type,
+    expectedAnswer: question.expectedAnswer,
+    mandatory: question.mandatory
   };
 
-  this.partnersService.addPartnerPackage(this.selectedPartnerId, pkg)
+  this.partnersService.updatePackageQuestions(p.id, packageId, [updatedQuestion])
     .subscribe({
-      next: msg => {
-        this.actionMessage = 'Package added successfully.';
-        setTimeout(() => this.actionMessage = '', 3000);
-        this.selectedPartnerId = null;
+      next: (res) => {
+        console.log('Update successful:', res);
+        this.cancelEdit(packageId);
       },
-      error: err => {
-        console.error('Add package error:', err);
-        this.actionMessage = 'Failed to add package.';
-        setTimeout(() => this.actionMessage = '', 3000);
+      error: (err) => {
+        console.error('Update failed:', err);
       }
     });
 }
+
+
 }
+
 

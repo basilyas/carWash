@@ -1,204 +1,68 @@
+/* Base Styles */
 .partners-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+.partners-page h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.loading,
+.error,
+.no-partners,
+.action-message {
+  text-align: center;
+  margin: 1rem 0;
+  font-weight: bold;
+}
+
+.error {
+  color: #d9534f;
 }
 
 .action-message {
-  text-align: center;
-  margin-bottom: 16px;
-  padding: 8px;
-  background-color: #e6ffed;
-  border: 1px solid #b7f5c9;
-  color: #2d662d;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.loading, .error, .no-partners {
-  text-align: center;
-  font-size: 18px;
-  margin: 20px 0;
-  color: #555;
+  color: #5cb85c;
 }
 
 .partner-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 2rem;
 }
 
+/* Partner Card */
 .partner-card {
-  width: 260px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.partner-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .partner-card img {
-  width: 100%;
-  height: 160px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
+  border-radius: 50%;
 }
 
 .partner-card .info {
-  padding: 16px;
+  margin-top: 1rem;
 }
 
 .partner-card h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
+  margin-bottom: 0.5rem;
 }
 
 .partner-card p {
-  margin: 4px 0;
-  font-size: 14px;
-  color: #333;
+  margin: 0.3rem 0;
 }
 
-/* Buttons */
-.status-btn {
-  margin-top: 12px;
-  margin-right: 8px;
-  padding: 8px 12px;
-  font-size: 14px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  background-color: #28a745;
-  color: #fff;
-  transition: background-color 0.2s;
-}
-
-.status-btn:hover {
-  background-color: #1e7e34;
-}
-
-.toggle-btn {
-  margin-top: 8px;
-  margin-right: 8px;
-  padding: 6px 10px;
-  font-size: 13px;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.toggle-btn:hover {
-  background-color: #0056b3;
-}
-
-.sub-toggle-btn {
-  margin-top: 8px;
-  margin-right: 6px;
-  padding: 5px 8px;
-  font-size: 12px;
-  background-color: #17a2b8;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.sub-toggle-btn:hover {
-  background-color: #117a8b;
-}
-
-/* Add Package Form */
-.add-package-form {
-  margin-top: 12px;
-  padding: 12px;
-  border: 1px solid #ddd;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-}
-
-.add-package-form h4 {
-  margin: 0 0 12px;
-  font-size: 16px;
-}
-
-.add-package-form label {
-  display: block;
-  margin: 8px 0 4px;
-  font-size: 14px;
-}
-
-.add-package-form input,
-.add-package-form select {
-  width: 100%;
-  padding: 6px 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-.services-products {
-  margin: 12px 0;
-  border-top: 1px solid #eee;
-  padding-top: 8px;
-}
-
-.services-products h5 {
-  margin: 0 0 8px;
-  font-size: 15px;
-}
-
-.services-products h6 {
-  margin: 8px 0 4px;
-  font-size: 14px;
-  color: #555;
-}
-
-.services-products label {
-  font-weight: 500;
-  margin-top: 6px;
-}
-
-.services-products div div {
-  margin-left: 12px;
-}
-
-/* Extra Details */
-.extra-details {
-  margin-top: 12px;
-  padding: 12px;
-  border-top: 1px solid #eee;
-  background-color: #f7f7f7;
-  border-radius: 6px;
-}
-
-.extra-details h4 {
-  margin: 0 0 8px;
-  font-size: 16px;
-}
-
-.cover-photo {
-  width: 100%;
-  height: 100px;
-  object-fit: cover;
-  margin-top: 8px;
-  border-radius: 4px;
-}
-
-/* Package List Placeholder */
-.package-list {
-  margin-top: 12px;
-}
-
+/* Status styling */
 .approved {
   color: green;
   font-weight: bold;
@@ -209,21 +73,213 @@
   font-weight: bold;
 }
 
-.no-items,
-.no-packages {
-  font-style: italic;
-  color: #888;
-  margin: 8px 0;
+/* Buttons */
+.status-btn,
+.toggle-btn,
+.sub-toggle-btn,
+.remove-btn {
+  margin: 0.5rem 0.5rem 0.5rem 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  border-radius: 5px;
+}
+
+.status-btn {
+  background-color: #0275d8;
+  color: white;
+}
+
+.toggle-btn {
+  background-color: #5bc0de;
+  color: white;
+}
+
+.sub-toggle-btn {
+  background-color: #5cb85c;
+  color: white;
+}
+
+.remove-btn {
+  background-color: #d9534f;
+  color: white;
+}
+
+/* Extra Details */
+.extra-details,
+.package-list,
+.add-package-form {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #eef2f7;
+  border-radius: 8px;
+}
+
+.extra-details img.cover-photo {
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.5rem;
+}
+
+/* Package Grid */
+.packages-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.package-card {
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.pkg-title {
+  font-weight: bold;
+  font-size: 1.1rem;
 }
 
 .product-list,
 .question-list {
-  margin: 8px 0 0 16px;
-  font-size: 14px;
-  color: #333;
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
 }
 
-.product-list li,
-.question-list li {
-  margin: 4px 0;
+.no-items,
+.no-packages {
+  color: #999;
+  font-style: italic;
+  margin-top: 0.5rem;
 }
+
+/* Add Package Form */
+.add-package-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-package-form fieldset {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.add-package-form label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.95rem;
+}
+
+.add-package-form input[type="text"],
+.add-package-form input[type="number"],
+.add-package-form input[type="checkbox"] {
+  padding: 0.4rem;
+  font-size: 0.95rem;
+  margin-top: 0.2rem;
+}
+
+.add-package-form button[type="submit"] {
+  margin-top: 1rem;
+  background-color: #0275d8;
+  color: white;
+  padding: 0.6rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-package-form p {
+  color: #5cb85c;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+/* update questin style */
+/* Update button */
+button {
+  background-color: #2563eb; /* Blue */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+button:hover {
+  background-color: #1d4ed8; /* Darker blue */
+}
+
+button:disabled {
+  background-color: #94a3b8; /* Gray */
+  cursor: not-allowed;
+}
+
+/* Edit form container */
+.edit-form {
+  background-color: #f3f4f6; /* Light gray background */
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+}
+
+/* Inputs and select box */
+.edit-form input[type="text"],
+.edit-form input[type="checkbox"],
+.edit-form select {
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Checkbox label */
+.edit-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Buttons inside edit form */
+.edit-form button {
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  width: fit-content;
+}
+
+/* Save button */
+.edit-form button:nth-of-type(1) {
+  background-color: #10b981; /* Green */
+  color: white;
+}
+
+.edit-form button:nth-of-type(1):hover {
+  background-color: #059669;
+}
+
+/* Cancel button */
+.edit-form button:nth-of-type(2) {
+  background-color: #ef4444; /* Red */
+  color: white;
+}
+
+.edit-form button:nth-of-type(2):hover {
+  background-color: #dc2626;
+}
+

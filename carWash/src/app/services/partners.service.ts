@@ -30,7 +30,6 @@ export interface PartnerExtraDetails {
   user: any;
   userExtraDetails: any;
 }
-
 export interface PartnerPackage {
   id: string;
   vat: string;
@@ -38,63 +37,74 @@ export interface PartnerPackage {
   countryCode: string;
   city: string;
   packageName: string;
+  packageDescription: string;
   currency: string;
-  extraDetails: Record<'additionalProp1' | 'additionalProp2' | 'additionalProp3', string>;
-  serviceProducts: Product[];
-  stockProducts: Product[];
-  questions: Question[];
-  regionDTOs: RegionDTO[];
-  priceDTO: PriceDTO;
+  duration: string;
+  numberOfServices: string;
   active: boolean;
+
+  extraDetails: {
+    additionalProp1: string;
+    additionalProp2: string;
+    additionalProp3: string;
+  };
+
+  priceDTO: {
+    netPrice: number;
+    totalPrice: number;
+    price: number;
+    salePrice: number;
+    vat: number;
+    systemProfitPercentage: number;
+    salePercentage: number;
+  };
+
+  questions: {
+    id?: string;
+    text: string;
+    type: number;
+    expectedAnswer: string;
+    mandatory: boolean;
+  }[];
+
+  serviceProducts: {
+    id: string;
+    productCode: string;
+    internalID: string;
+    name: string;
+    description: string;
+    price: number;
+    currency: string;
+    externalID: string;
+    status: string;
+    salePercentage: number;
+    systemProfitPercentage: number;
+    generalCosts: number;
+  }[];
+
+  stockProducts: {
+    id: string;
+    productCode: string;
+    internalID: string;
+    name: string;
+    description: string;
+    price: number;
+    currency: string;
+    externalID: string;
+    status: string;
+    salePercentage: number;
+    systemProfitPercentage: number;
+    generalCosts: number;
+  }[];
+
+  regionDTOs: {
+    id: string;
+    countryCode: string;
+    country: string;
+    city: string;
+  }[];
 }
 
-export interface Product {
-  id: string;
-  productCode: string;
-  internalID: string;
-  name: string;
-  description: string;
-  price: number;
-  currency: string;
-  externalID: string;
-  status: 'Publish' | string;
-  salePercentage: number;
-  systemProfitPercentage: number;
-  generalCosts: number;
-}
-
-export interface Question {
-  id: string;
-  text: string;
-  type: number;
-  expectedAnswer: string;
-  mandatory: boolean;
-}
-
-export interface RegionDTO {
-  id: string;
-  countryCode: string;
-  country: string;
-  city: string;
-}
-
-export interface PriceDTO {
-  netPrice: number;
-  totalPrice: number;
-  price: number;
-  salePrice: number;
-  vat: number;
-  systemProfitPercentage: number;
-  salePercentage: number;
-}
-export interface ServiceRegionResponse {
-  countryCode: string;
-  country: string;
-  city: string;
-  vat: number;
-  services: Product[];  // Product shape reused for services
-  products: Product[];
-}
 
 @Injectable({
   providedIn: 'root'
@@ -105,9 +115,12 @@ export class PartnersService {
   private getPackagesUrl     = '/api/administrator/getPartnerPackages';
   private approveUserUrl     = '/api/administrator/approveUser';
   private suspendUserUrl     = '/api/administrator/suspendUser';
-  private servicesRegionsUrl    = '/api/administrator/stor/services/get';
+  private servicesUrl    = '/api/administrator/stor/services/get';
   private regionsUrl          = '/api/administrator/regions/get';
   private addPartnerPackageUrl = '/api/administrator/addPartnerPackage';
+  private removePartnerPackageUrl = '/api/administrator/removePartnerPackage';
+  private updateQuestionUrl = '/api/administrator/package/questions/update';
+
 
   constructor(private http: HttpClient) {}
 
@@ -162,30 +175,44 @@ export class PartnersService {
       { headers: this.authHeaders(), params, responseType: 'text' as 'json' }
     );
   }
-  getServicesByRegions(regions: RegionDTO[]): Observable<ServiceRegionResponse[]> {
-    return this.http.post<ServiceRegionResponse[]>(
-      this.servicesRegionsUrl,
-      regions,
-      { headers: this.authHeaders() }
-    );
+
+  addPartnerPackage(partnerId: string, packageData: any): Observable<any> {
+
+    const params = new HttpParams().set('partnerId', partnerId);
+    return this.http.post(this.addPartnerPackageUrl, packageData, { headers: this.authHeaders(), params });
   }
-  getRegions(countryCode: string): Observable<RegionDTO[]> {
-    const params = new HttpParams().set('countryCode', countryCode);
-    console.log('getRegions POST to', this.regionsUrl, 'params=', params.toString());
-    return this.http.post<RegionDTO[]>(
-      this.regionsUrl,
-      {},
-      { headers: this.authHeaders(), params }
-    );
-  }
-  addPartnerPackage(partnerId: string, pkg: PartnerPackage): Observable<string> {
-    const url = `${this.addPartnerPackageUrl}?partnerId=${partnerId}`;
-    console.log('addPartnerPackage URL:', url);
-    console.log('addPartnerPackage body:', pkg);
-    return this.http.post<string>(
-      url,
-      pkg,
-      { headers: this.authHeaders(), responseType: 'text' as 'json' }
-    );
-  }
+  removePartnerPackage(partnerId: string, packageId: string): Observable<{}> {
+  const params = new HttpParams()
+    .set('partnerId', partnerId)
+    .set('packageId', packageId);
+
+  return this.http.post<{}>(
+    this.removePartnerPackageUrl,
+    {},
+    { headers: this.authHeaders(), params }
+  );
+}
+updatePackageQuestions(
+  partnerId: string,
+  packageId: string,
+  updatedQuestions: {
+    id: string;
+    text: string;
+    type: number;
+    expectedAnswer: string;
+    mandatory: boolean;
+  }[]
+): Observable<string> {
+  const params = new HttpParams()
+    .set('partnerId', partnerId)
+    .set('packageId', packageId);
+
+  return this.http.post<string>(
+    this.updateQuestionUrl,
+    updatedQuestions,
+    { headers: this.authHeaders(), params, responseType: 'text' as 'json' }
+  );
+}
+
+
 }

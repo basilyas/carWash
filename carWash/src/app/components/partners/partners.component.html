@@ -57,13 +57,13 @@
               </p>
               <p><strong>Active:</strong> {{ pkg.active ? 'Yes' : 'No' }}</p>
 
-              <button class="sub-toggle-btn" (click)="toggleProducts(pkg.id)">
+              <!-- <button class="sub-toggle-btn" (click)="toggleProducts(pkg.id)">
                 {{ showProductsMap[pkg.id] ? 'Hide Products' : 'Show Products' }}
               </button>
               <div *ngIf="showProductsMap[pkg.id] && (pkg.serviceProducts.length + pkg.stockProducts.length) === 0"
                    class="no-items">
                 No products available.
-              </div>
+              </div> -->
               <ul *ngIf="showProductsMap[pkg.id] && (pkg.serviceProducts.length + pkg.stockProducts.length) > 0"
                   class="product-list">
                 <li *ngFor="let prod of pkg.serviceProducts">
@@ -80,68 +80,101 @@
               <div *ngIf="showQuestionsMap[pkg.id] && pkg.questions.length === 0" class="no-items">
                 No questions available.
               </div>
+             
               <ul *ngIf="showQuestionsMap[pkg.id] && pkg.questions.length > 0" class="question-list">
-                <li *ngFor="let q of pkg.questions">
-                  {{ q.text }} <span *ngIf="q.mandatory">*</span>
-                </li>
-              </ul>
+  <li *ngFor="let q of pkg.questions" class="question-item">
+    <div><strong>Question:</strong> {{ q.text }} <span *ngIf="q.mandatory" class="mandatory">*</span></div>
+    <div><strong>Expected Answer:</strong> {{ q.expectedAnswer }}</div>
+    <div><strong>Type:</strong> {{ q.type }}</div>
+    <div><strong>Mandatory:</strong> {{ q.mandatory ? 'Yes' : 'No' }}</div>
+
+    <!-- Update Button -->
+    <button (click)="toggleEdit(pkg.id, q.id)">Update</button>
+
+    <!-- Edit Form (conditionally shown) -->
+    <div *ngIf="editingQuestionIdMap[pkg.id] === q.id" class="edit-form">
+      <input [(ngModel)]="q.text" placeholder="Question Text">
+      <input [(ngModel)]="q.expectedAnswer" placeholder="Expected Answer">
+      <select [(ngModel)]="q.type">
+        <option [value]="0">Type 0</option>
+        <option [value]="1">Type 1</option>
+        <!-- Add more types as needed -->
+      </select>
+      <label>
+        <input type="checkbox" [(ngModel)]="q.mandatory"> Mandatory
+      </label>
+      <button (click)="submitUpdate(pkg.id, p, q)">Save</button>
+      <button (click)="cancelEdit(pkg.id)">Cancel</button>
+    </div>
+  </li>
+</ul>
+
+
+              <button class="remove-btn" (click)="removePackage(p.id, pkg.id)">
+                Remove Package
+              </button>
 
             </div>
           </div>
         </div>
 
-        <button class="toggle-btn" (click)="startAddPackage(p.id)">Add Package</button>
+        <button (click)="toggleAddPackageForm(p.id)" class="toggle-btn">Add Partner Package</button>
 
-        <div *ngIf="selectedPartnerId === p.id" class="add-package-form">
+
+        <div *ngIf="showAddPackageFormMap[p.id]" class="add-package-form">
           <h4>Add Package for {{ p.name }}</h4>
-          <form [formGroup]="packageForm" (ngSubmit)="addPackage()" novalidate>
-            <label>Country / Region</label>
-            <select formControlName="countryCode" (change)="onCountryChange()">
-              <option value="" disabled>Select region</option>
-              <option *ngFor="let r of regions" [value]="r.countryCode">{{ r.country }} / {{ r.city }}</option>
-            </select>
+          <form (ngSubmit)="submitNewPackage(p)">
+            <label>Package Name: <input [(ngModel)]="newPackage.packageName" name="packageName" required /></label>
+            <label>Description: <input [(ngModel)]="newPackage.packageDescription" name="packageDescription" /></label>
+            <label>Country: <input [(ngModel)]="newPackage.country" name="country" /></label>
+            <label>Country Code: <input [(ngModel)]="newPackage.countryCode" name="countryCode" /></label>
+            <label>City: <input [(ngModel)]="newPackage.city" name="city" /></label>
+            <label>Currency: <input [(ngModel)]="newPackage.currency" name="currency" /></label>
+            <label>Duration: <input [(ngModel)]="newPackage.duration" name="duration" /></label>
+            <label>VAT: <input [(ngModel)]="newPackage.vat" name="vat" /></label>
+            <label>Number of Services: <input [(ngModel)]="newPackage.numberOfServices" name="numberOfServices" /></label>
+            <label>Active:
+              <input type="checkbox" [(ngModel)]="newPackage.active" name="active" />
+            </label>
 
-            <label>City</label>
-            <input formControlName="city" placeholder="Enter city" />
+            <fieldset>
+              <legend>Extra Details</legend>
+              <label>Prop1: <input [(ngModel)]="newPackage.extraDetails.additionalProp1" name="extra1" /></label>
+              <label>Prop2: <input [(ngModel)]="newPackage.extraDetails.additionalProp2" name="extra2" /></label>
+              <label>Prop3: <input [(ngModel)]="newPackage.extraDetails.additionalProp3" name="extra3" /></label>
+            </fieldset>
 
-            <label>VAT (%)</label>
-            <input type="number" formControlName="vat" min="0" />
+            <fieldset>
+              <legend>Price Info</legend>
+              <label>Net Price: <input type="number" [(ngModel)]="newPackage.priceDTO.netPrice" name="netPrice" /></label>
+              <label>Total Price: <input type="number" [(ngModel)]="newPackage.priceDTO.totalPrice" name="totalPrice" /></label>
+              <label>Price: <input type="number" [(ngModel)]="newPackage.priceDTO.price" name="price" /></label>
+              <label>Sale Price: <input type="number" [(ngModel)]="newPackage.priceDTO.salePrice" name="salePrice" /></label>
+              <label>VAT: <input type="number" [(ngModel)]="newPackage.priceDTO.vat" name="priceVat" /></label>
+              <label>System Profit %: <input type="number" [(ngModel)]="newPackage.priceDTO.systemProfitPercentage" name="systemProfitPercentage" /></label>
+              <label>Sale %: <input type="number" [(ngModel)]="newPackage.priceDTO.salePercentage" name="salePercentage" /></label>
+            </fieldset>
 
-            <label>Package Name</label>
-            <input formControlName="packageName" placeholder="Enter name" />
+            <fieldset>
+              <legend>Question</legend>
+              <label>Text: <input [(ngModel)]="newPackage.questions[0].text" name="questionText" /></label>
+              <label>Expected Answer: <input [(ngModel)]="newPackage.questions[0].expectedAnswer" name="expectedAnswer" /></label>
+              <label>Type: <input type="number" [(ngModel)]="newPackage.questions[0].type" name="questionType" /></label>
+              <label>Mandatory:
+                <input type="checkbox" [(ngModel)]="newPackage.questions[0].mandatory" name="mandatory" />
+              </label>
+            </fieldset>
 
-            <label>Currency</label>
-            <input formControlName="currency" placeholder="Enter currency" />
 
-            <label>Extra Details</label>
-            <div formGroupName="extraDetails">
-              <input formControlName="additionalProp1" placeholder="Feature 1" />
-              <input formControlName="additionalProp2" placeholder="Feature 2" />
-              <input formControlName="additionalProp3" placeholder="Feature 3" />
-            </div>
+            <fieldset>
+              <legend>Region Info</legend>
+              <label>Country: <input [(ngModel)]="newPackage.regionDTOs[0].country" name="regionCountry" /></label>
+              <label>Country Code: <input [(ngModel)]="newPackage.regionDTOs[0].countryCode" name="regionCountryCode" /></label>
+              <label>City: <input [(ngModel)]="newPackage.regionDTOs[0].city" name="regionCity" /></label>
+            </fieldset>
 
-            <label>Services & Products</label>
-            <div *ngFor="let sr of servicesRegions">
-              <h6>{{ sr.country }} / {{ sr.city }}</h6>
-              <div>
-                <strong>Services:</strong>
-                <label *ngFor="let svc of sr.services">
-                  <input type="checkbox" (change)="packageForm.value.serviceProducts.push(svc)" /> {{ svc.name }}
-                </label>
-              </div>
-              <div>
-                <strong>Products:</strong>
-                <label *ngFor="let pr of sr.products">
-                  <input type="checkbox" (change)="packageForm.value.stockProducts.push(pr)" /> {{ pr.name }}
-                </label>
-              </div>
-            </div>
-
-            <label>Questions (JSON array)</label>
-            <input formControlName="questions" placeholder="e.g. [{…}]" />
-
-            <button type="submit" class="status-btn" [disabled]="packageForm.invalid">Save Package</button>
-            <button type="button" class="toggle-btn" (click)="selectedPartnerId = null">Cancel</button>
+            <button type="submit">Submit Package</button>
+            <p *ngIf="submitMessage">{{ submitMessage }}</p>
           </form>
         </div>
 
