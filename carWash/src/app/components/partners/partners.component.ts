@@ -209,6 +209,7 @@ submitNewPackage(p:Partner): void {
     },
     error: (error) => {
       console.error('Failed to add partner package:', error);
+      this.fetchPartners();
       this.submitMessage = 'Failed to add package. Please try again.';
     }
   });
@@ -219,11 +220,15 @@ removePackage(partnerId: string, packageId: string): void {
       next: () => {
         // Remove the package from the local array
         this.packagesMap[partnerId] = this.packagesMap[partnerId].filter(pkg => pkg.id !== packageId);
+        this.fetchPartners();
+
         alert('Package removed successfully.');
       },
       error: (error: any) => {
+        this.fetchPartners();
+
         console.error('Error removing package:', error);
-        alert('Failed to remove the package.');
+
       }
     });
   }
@@ -248,8 +253,14 @@ submitUpdate(packageId: string, p: Partner, question: any) {
     expectedAnswer: question.expectedAnswer,
     mandatory: question.mandatory
   };
+   // Log the data before sending
+  console.log('Submitting updated question:', {
+    partnerId: p.id,
+    packageId: packageId,
+    updatedQuestions: [updatedQuestion]
+  });
 
-  this.partnersService.updatePackageQuestions(p.id, packageId, [updatedQuestion])
+  this.partnersService.updateQuestion(p.id, packageId, [updatedQuestion])
     .subscribe({
       next: (res) => {
         console.log('Update successful:', res);
@@ -260,6 +271,7 @@ submitUpdate(packageId: string, p: Partner, question: any) {
       }
     });
 }
+
 
 
 }

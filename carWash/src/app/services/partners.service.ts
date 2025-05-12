@@ -192,7 +192,7 @@ export class PartnersService {
     { headers: this.authHeaders(), params }
   );
 }
-updatePackageQuestions(
+updateQuestion(
   partnerId: string,
   packageId: string,
   updatedQuestions: {
@@ -213,6 +213,7 @@ updatePackageQuestions(
     { headers: this.authHeaders(), params, responseType: 'text' as 'json' }
   );
 }
+
 
 
 }
